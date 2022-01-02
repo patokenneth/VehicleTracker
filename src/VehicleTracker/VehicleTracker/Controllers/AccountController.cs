@@ -29,7 +29,7 @@ namespace VehicleTracker.Controllers
 
         [HttpPost]
         [Authorize(Policy = "Admin")]
-        [Route("{RegisterUser}")]
+        [Route("RegisterUser")]
         public IActionResult Register(RegisterUserViewModel userModel)
         {
             if (ModelState.IsValid)
@@ -49,6 +49,7 @@ namespace VehicleTracker.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [Route("Login")]
         public IActionResult Login(LoginViewModel model)
         {
             if (ModelState.IsValid)

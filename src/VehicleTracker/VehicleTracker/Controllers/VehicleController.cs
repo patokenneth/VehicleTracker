@@ -46,6 +46,7 @@ namespace VehicleTracker.Controllers
 
         [HttpGet]
         [Authorize(Policy = "Admin")]
+        [Route("LocationHistory")]
         public async Task<IEnumerable<GetVehiclePosition>> GetAllPosition([FromQuery] int vehicleID, DateTime? startTime, DateTime? endTime)
         {
             var locationHistory = await _locationRepo.GetAllPositions(vehicleID, startTime, endTime);
