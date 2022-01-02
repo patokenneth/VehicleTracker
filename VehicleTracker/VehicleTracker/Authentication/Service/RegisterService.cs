@@ -14,11 +14,12 @@ namespace VehicleTracker.Authentication.Service
     {
         private readonly AppUserContext _context;
 
-        public RegisterService()
+        public RegisterService(AppUserContext context)
         {
-
+            _context = context;
         }
-        public async Task<int> CreatUser(RegisterUserViewModel registerModel, AppUserContext context)
+
+        public ApplicationUser CreatUser(RegisterUserViewModel registerModel)
         {
             var hmac = new HMACSHA512();
 
@@ -26,28 +27,42 @@ namespace VehicleTracker.Authentication.Service
             {
                 IsAdmin = registerModel.isAdmin,
                 password = hmac.ComputeHash(Encoding.UTF8.GetBytes(registerModel.password)),
-                Passwordsalt = hmac.Key
+                Passwordsalt = hmac.Key,
+                Username = registerModel.username
             };
 
             _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
+            _context.SaveChangesAsync();
 
-            return newUser.Id;
+            return newUser;
 
 
         }
 
-        public async Task<int> CreateVehicle()
+        public bool UserExists(string username)
         {
-            Vehicle newVehicle = new Vehicle
+            return _context.Users.Any(x => x.Username == username.ToLower());
+        }
+
+
+        public (bool, ApplicationUser) SignInUser(LoginViewModel loginModel)
+        {
+            var user = _context.Users.SingleOrDefault(u => u.Username == loginModel.userName);
+
+            var hmac = new HMACSHA512(user.Passwordsalt);
+
+            var hashedPassword = hmac.ComputeHash(Encoding.UTF8.GetBytes(loginModel.password));
+
+            for (int i = 0; i < hashedPassword.Length; i++)
             {
-                RegistrationDate = DateTime.Now
-            };
+                if (hashedPassword[i] != user.password[i])
+                {
+                    return (false, null);
+                }
+            }
 
-            _context.Vehicles.Add(newVehicle);
-            await _context.SaveChangesAsync();
-
-            return newVehicle.Id;
+            return (user.IsAdmin ? true : false, user);
+            
         }
     }
 }

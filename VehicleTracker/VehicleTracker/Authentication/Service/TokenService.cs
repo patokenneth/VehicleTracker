@@ -27,7 +27,7 @@ namespace VehicleTracker.Authentication.Service
             {
                 new Claim(JwtRegisteredClaimNames.GivenName, user.Username),
                 //check if the user is an admin so we can add that to the list of claims
-                isAdmin == true ? new Claim("Admin", "admin") : new Claim(JwtRegisteredClaimNames.Sub, null)
+                isAdmin == true ? new Claim("admin", "admin") : new Claim(JwtRegisteredClaimNames.Sub, null)
             };
 
             var credentials = new SigningCredentials(_jwtkey, SecurityAlgorithms.HmacSha256);

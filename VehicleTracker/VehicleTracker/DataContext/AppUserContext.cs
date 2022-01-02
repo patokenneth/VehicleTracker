@@ -34,6 +34,6 @@ namespace VehicleTracker.DataContext
 
         public DbSet<ApplicationUser> Users { get; set; }
         public DbSet<Vehicle> Vehicles { get; set; }
-        public DbSet<LocationDetails> Location { get; set; }
+        public DbSet<LocationDetail> Location { get; set; }
     }
 }
