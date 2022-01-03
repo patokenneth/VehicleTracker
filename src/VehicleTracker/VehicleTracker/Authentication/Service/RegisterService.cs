@@ -41,7 +41,7 @@ namespace VehicleTracker.Authentication.Service
 
         public bool UserExists(string username)
         {
-            return _context.Users.Any(x => x.Username == username.ToLower());
+            return _context.Users.Any(x => x.Username.ToLower() == username.ToLower());
         }
 
 

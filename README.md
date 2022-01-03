@@ -7,12 +7,17 @@ In this project, I have built a web API to simulate a vehicle tracking platform.
 ## Getting Started
 This project is on my github repo and has one branch: main. Start by cloning the main branch of the repo. Afterwards, restore the NuGet packages 
 and run migration (both the add-migration and update-database commands). As a way of seeding an admin user, I have a default user whose username is Seven and the password is Sev7T. The admin 
-user is able to register other users and also fetch the vehicle location. If you have followed the instructions above, the solution should start up on swagger when you run it.
+user is able to register other users and also fetch the vehicle location or location history. If you have followed the instructions above, the solution should start up on swagger when you run it.
+
+##Test user
+username : Seven
+password : Sev7T
 
 ### Dependencies
 
-To successfully run this project, you need to have the following software updates installed:
+To successfully run this project, you need to have the following environments ready:
 * .NET 5 SDK or above (https://dotnet.microsoft.com/download/dotnet/5.0)
+* Since "LocationName" property is fetched via google Geolocation api, you need internet access to get the whole properties. If there is no internet, the LocationName field will be empty. 
 
 ### Installing
 

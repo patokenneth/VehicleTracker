@@ -25,9 +25,9 @@ namespace VehicleTracker.Authentication.Service
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.GivenName, user.Username),
+                new Claim(ClaimTypes.Name, user.Username),
                 //check if the user is an admin so we can add that to the list of claims
-                isAdmin == true ? new Claim("admin", "admin") : new Claim(JwtRegisteredClaimNames.Sub, null)
+                isAdmin == true ? new Claim(ClaimTypes.Role, "admin") : new Claim(ClaimTypes.Role, "user")
             };
 
             var credentials = new SigningCredentials(_jwtkey, SecurityAlgorithms.HmacSha256);
@@ -37,11 +37,13 @@ namespace VehicleTracker.Authentication.Service
                 Subject = new ClaimsIdentity(claims),
                 SigningCredentials = credentials,
                 Expires = DateTime.Now.AddHours(5)
+                
             };
 
             var handler = new JwtSecurityTokenHandler();
+            var token = handler.CreateToken(descriptor);
 
-            return handler.WriteToken(handler.CreateToken(descriptor));
+            return handler.WriteToken(token);
         }
     }
 }

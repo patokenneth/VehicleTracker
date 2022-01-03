@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VehicleTracker.Interface;
 using VehicleTracker.Repository;
 using VehicleTracker.ViewModels;
 
@@ -14,9 +15,9 @@ namespace VehicleTracker.Controllers
     [ApiController]
     public class VehicleController : ControllerBase
     {
-        private readonly LocationRepository _locationRepo;
+        private readonly ILocation _locationRepo;
 
-        public VehicleController(LocationRepository locationRepository)
+        public VehicleController(ILocation locationRepository)
         {
             _locationRepo = locationRepository;
         }

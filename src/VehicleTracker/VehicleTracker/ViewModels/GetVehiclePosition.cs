@@ -10,5 +10,6 @@ namespace VehicleTracker.ViewModels
         public string Latitude { get; set; }
         public string Longitude { get; set; }
         public string LocationName { get; set; }
+        public DateTime Time { get; set; }
     }
 }

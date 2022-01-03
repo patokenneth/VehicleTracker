@@ -23,9 +23,10 @@ namespace VehicleTracker.Repository
 
         public LocationRepository(AppUserContext context, RegisterService service, ILogger<LocationRepository> logger, IConfiguration config)
         {
-            _service = service; //new RegisterService(_context);
+            _service = service; 
             _context = context;
             _config = config;
+            _logger = logger;
         }
 
         public string key => _config["api_key"];
@@ -38,12 +39,12 @@ namespace VehicleTracker.Repository
             {
                 if (start == null || end == null)
                 {
-                    start = start ?? DateTime.Now.AddMinutes(-5);
+                    start = start ?? DateTime.Now.AddMinutes(-15);
                     end = end ?? DateTime.Now;
                 }
                 locationDetails = await _context.Location.Where(v => v.VehicleID == VehicleID && v.Time >= start && v.Time <= end)
                                                          .OrderByDescending(o => o.Time).AsNoTracking()
-                                                         .Select(vc => new GetVehiclePosition { Latitude = vc.Latitude, Longitude = vc.Longitude, LocationName = FetchName.ReturnName(key, vc.Latitude, vc.Longitude) })
+                                                         .Select(vc => new GetVehiclePosition { Latitude = vc.Latitude, Longitude = vc.Longitude, LocationName = FetchName.ReturnName(key, vc.Latitude, vc.Longitude), Time = vc.Time})
                                                          .ToListAsync();
 
             }
@@ -78,24 +79,37 @@ namespace VehicleTracker.Repository
 
         public async Task<bool> RecordPosition(RegisterPositionViewModel locationModel)
         {
-            //check that the vehicle is registered. Register it if false.
-
+            //put the process in a transaction to maintain database integrity.
+            using var transaction = _context.Database.BeginTransaction();
             try
             {
+                //check that the vehicle is registered. Register it if false.
                 if (!_context.Vehicles.Any(v => v.Id == locationModel.VehicleId))
                 {
-                    var vehicleID = CreateVehicle();
+                    //var vehicleID = CreateVehicle();
+                    Vehicle newVehicle = new Vehicle
+                    {
+                        RegistrationDate = DateTime.Now
+                    };
+
+                    _context.Vehicles.Add(newVehicle);
+                    await _context.SaveChangesAsync();
                 }
+
+                await transaction.CreateSavepointAsync("VehicleCreated");
 
                 var position = new LocationDetail
                 {
                     Latitude = locationModel.Latitude,
                     Longitude = locationModel.Longitude,
-                    VehicleID = locationModel.VehicleId
+                    VehicleID = locationModel.VehicleId,
+                    Time = DateTime.Now
                 };
 
                 _context.Location.Add(position);
                 await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
 
                 return true;
             }
@@ -103,24 +117,24 @@ namespace VehicleTracker.Repository
             {
                 //log exception
                 _logger.LogError($"failed to update record. Error message is {ex.Message}.");
+                transaction.Rollback();
                 return false;
 
-                
             }
-            
+
         }
 
-        public async Task<int> CreateVehicle()
-        {
-            Vehicle newVehicle = new Vehicle
-            {
-                RegistrationDate = DateTime.Now
-            };
+        //public async Task<int> CreateVehicle()
+        //{
+        //    Vehicle newVehicle = new Vehicle
+        //    {
+        //        RegistrationDate = DateTime.Now
+        //    };
 
-            _context.Vehicles.Add(newVehicle);
-            await _context.SaveChangesAsync();
+        //    _context.Vehicles.Add(newVehicle);
+        //    await _context.SaveChangesAsync();
 
-            return newVehicle.Id;
-        }
+        //    return newVehicle.Id;
+        //}
     }
 }

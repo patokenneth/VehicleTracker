@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using VehicleTracker.Authentication.Interface;
 using VehicleTracker.Authentication.Service;
 using VehicleTracker.Models;
 using VehicleTracker.Repository;
@@ -18,9 +19,9 @@ namespace VehicleTracker.Controllers
     {
         private readonly RegisterService _regService;
 
-        private readonly TokenService _tokenService;
+        private readonly IToken _tokenService;
 
-        public AccountController(RegisterService serv, TokenService service)
+        public AccountController(RegisterService serv, IToken service)
         {
             _regService = serv;
             _tokenService = service;
@@ -32,6 +33,7 @@ namespace VehicleTracker.Controllers
         [Route("RegisterUser")]
         public IActionResult Register(RegisterUserViewModel userModel)
         {
+            
             if (ModelState.IsValid)
             {
                 if (_regService.UserExists(userModel.username))

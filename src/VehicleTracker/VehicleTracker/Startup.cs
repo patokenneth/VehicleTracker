@@ -13,12 +13,14 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using VehicleTracker.Authentication.Interface;
 using VehicleTracker.Authentication.Service;
 using VehicleTracker.DataContext;
 using VehicleTracker.Interface;
+using VehicleTracker.Models;
 using VehicleTracker.Repository;
 
 namespace VehicleTracker
@@ -47,6 +49,13 @@ namespace VehicleTracker
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddCors();
+
+            services.AddScoped(typeof(RegisterService));
+            services.AddTransient<IToken, TokenService>();
+            services.AddTransient<ILocation, LocationRepository>();
+
+           
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,19 +67,20 @@ namespace VehicleTracker
                 {
                     ClockSkew = TimeSpan.Zero,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
-                    ValidateAudience = false
+                    ValidateAudience = false,
+                    ValidateIssuer = false
 
                 };
             });
 
+            
+
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("Admin", policy => policy.RequireClaim("admin"));
+                options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "admin"));
             });
 
-            services.AddScoped(typeof(RegisterService));
-            services.AddTransient<IToken, TokenService>();
-            services.AddTransient<ILocation, LocationRepository>();
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

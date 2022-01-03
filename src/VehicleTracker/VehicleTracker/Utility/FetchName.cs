@@ -33,15 +33,15 @@ namespace VehicleTracker.Utility
 
                     if (status.Value.ToLower() == "ok")
                     {
-                        var res = (from elm in xmlElm.Descendants()
-                                   where elm.Name == "address_component"
+                        var add = (from elm in xmlElm.Descendants()
+                                   where elm.Name == "formatted_address"
                                    select elm).FirstOrDefault();
 
-                        var local = (from elm in xmlElm.Descendants()
-                                     where elm.Name == "long_name"
-                                     select elm).FirstOrDefault();
+                        //var local = (from elm in xmlElm.Descendants()
+                        //             where elm.Name == "long_name"
+                        //             select elm).FirstOrDefault();
 
-                        locality = local.Value;
+                        locality = add.Value;
                     }
                 }
             }
