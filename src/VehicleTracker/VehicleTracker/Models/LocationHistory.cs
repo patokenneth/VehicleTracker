@@ -14,10 +14,17 @@ namespace VehicleTracker.Models
         //The Id data type is bigint and not GUID since bigint is big enough to store the number of records we are expecting.
         //With a range of -9223372036854775808 to 9223372036854775807, it can continuously register locations of vehicles for thousands of years.
         //Additionally, integer has better indexing and disk efficiency than GUID.
+
         public Int64 Id { get; set; }
         public int VehicleID { get; set; }
-        //I am assuming that the vehicle positions are sent using the "Geo URI" format; hence, a latitude and longitude
+
+        /*I am assuming that the vehicle positions are sent using the "Geo URI" format; hence, a latitude and longitude.
+        Also, I have used "double" data type for both latitiude and longitude in the registerpositionviewmodel I use
+        to receive the position details. For the db schema, I have opted for a string which is a primitive data type. I am also using a
+        StringLength of 15 for scalability*/
+        [StringLength(15)]
         public string Latitude { get; set; }
+        [StringLength(15)]
         public string Longitude { get; set; }
         public DateTime Time { get; set; }
         public Vehicle Vehicle { get; set; }

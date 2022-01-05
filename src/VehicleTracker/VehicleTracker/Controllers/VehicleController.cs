@@ -26,14 +26,20 @@ namespace VehicleTracker.Controllers
         [Route("Locations/Updateposition")]
         public async Task<IActionResult> UpdateLocation(RegisterPositionViewModel regModel)
         {
-            bool updated = await _locationRepo.RecordPosition(regModel);
-
-            if (updated)
+            if (ModelState.IsValid)
             {
-                return Ok(new { message = "Successfully updated."});
+                bool updated = await _locationRepo.RecordPosition(regModel);
+
+                if (updated)
+                {
+                    return Ok(new { message = "Successfully updated." });
+                }
+
+                return BadRequest(new { message = "Failed to update vehicle location." });
             }
 
-            return BadRequest(new { message = "Failed to update vehicle location."});
+            return UnprocessableEntity("Model validation failed. Kindly fill all the required fields.");
+            
         }
 
         [HttpGet]

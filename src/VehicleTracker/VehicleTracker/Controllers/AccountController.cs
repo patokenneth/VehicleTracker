@@ -42,7 +42,7 @@ namespace VehicleTracker.Controllers
                 }
                 var result = _regService.CreatUser(userModel);
                 string toks = _tokenService.CreateToken(result, userModel.isAdmin ? true : false);
-                return Ok(new { credentails = toks, username = result.Username });
+                return Ok(new { token = toks, username = result.Username });
             }
 
             return BadRequest(new { message = "Model validation failed, kindly fill all the fields." });
@@ -63,7 +63,7 @@ namespace VehicleTracker.Controllers
 
                     (isAdmin, user) = _regService.SignInUser(model);
                     string toks = _tokenService.CreateToken(user, isAdmin ? true : false);
-                    return Ok(new { credentails = toks, username = user.Username });
+                    return Ok(new { token = toks, username = user.Username });
                 }
 
                 return UnprocessableEntity(new { message = "Username does not exist"});

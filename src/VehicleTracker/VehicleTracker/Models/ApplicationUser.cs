@@ -12,6 +12,7 @@ namespace VehicleTracker.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
+        [StringLength(20)]
         public string Username { get; set; }
         public byte[] Passwordsalt { get; set; }
         public byte[] password { get; set; }

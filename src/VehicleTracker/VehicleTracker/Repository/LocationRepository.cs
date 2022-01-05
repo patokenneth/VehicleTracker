@@ -35,7 +35,8 @@ namespace VehicleTracker.Repository
         {
              IEnumerable<GetVehiclePosition> locationDetails = null;
 
-            if (_context.Location.Any(x => x.Id == VehicleID))
+            //check that a vehicle with such Id exists
+            if (_context.Vehicles.Any(x => x.Id == VehicleID))
             {
                 if (start == null || end == null)
                 {
@@ -108,13 +109,12 @@ namespace VehicleTracker.Repository
                     await _context.SaveChangesAsync();
                 }
 
-                await transaction.CreateSavepointAsync("VehicleCreated");
-
-              
+                
                 var position = new LocationHistory
                 {
-                    Latitude = locationModel.Latitude,
-                    Longitude = locationModel.Longitude,
+                    //convert to string, which is a more primitive datatype before storing the location in a database
+                    Latitude = locationModel.Latitude.ToString().Trim(),
+                    Longitude = locationModel.Longitude.ToString().Trim(),
                     VehicleID = locationModel.VehicleId,
                     Time = DateTime.Now
                 };
