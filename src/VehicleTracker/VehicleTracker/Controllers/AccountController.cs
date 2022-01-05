@@ -30,7 +30,7 @@ namespace VehicleTracker.Controllers
 
         [HttpPost]
         [Authorize(Policy = "Admin")]
-        [Route("RegisterUser")]
+        [Route("Registeruser")]
         public IActionResult Register(RegisterUserViewModel userModel)
         {
             

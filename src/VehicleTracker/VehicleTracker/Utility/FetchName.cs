@@ -13,7 +13,7 @@ namespace VehicleTracker.Utility
         
         public static string ReturnName(string key, string latitude, string longitude)
         {
-            //since this makes an external api call, kindly ensure you are connected to the internet for valid response
+            //since this makes an external api call, kindly ensure you are connected to the internet for a valid response
 
             string baseUri = "https://maps.googleapis.com/maps/api/geocode/xml?key={0}&latlng={1},{2}&sensor=false";
 
@@ -37,9 +37,6 @@ namespace VehicleTracker.Utility
                                    where elm.Name == "formatted_address"
                                    select elm).FirstOrDefault();
 
-                        //var local = (from elm in xmlElm.Descendants()
-                        //             where elm.Name == "long_name"
-                        //             select elm).FirstOrDefault();
 
                         locality = add.Value;
                     }

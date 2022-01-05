@@ -10,7 +10,8 @@ namespace VehicleTracker.Models
     public class Vehicle
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        //since we have about 10,000 vehicles, an int data type is enough for our primary key.
         public int Id { get; set; }
         public DateTime RegistrationDate { get; set; }
         

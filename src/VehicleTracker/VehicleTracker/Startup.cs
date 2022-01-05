@@ -38,6 +38,8 @@ namespace VehicleTracker
         public void ConfigureServices(IServiceCollection services)
         {
 
+            //Add compression to reduce the size of response. Gzip is icluded by default.
+            services.AddResponseCompression();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -86,6 +88,8 @@ namespace VehicleTracker
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseResponseCompression();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

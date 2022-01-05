@@ -39,14 +39,19 @@ namespace VehicleTracker.Repository
             {
                 if (start == null || end == null)
                 {
-                    start = start ?? DateTime.Now.AddMinutes(-15);
-                    end = end ?? DateTime.Now;
+                    //If user does not provide a timeframe, start and end times are defined below
+                    start ??= DateTime.Now.AddMinutes(-10);
+                    end ??= DateTime.Now;
                 }
-                locationDetails = await _context.Location.Where(v => v.VehicleID == VehicleID && v.Time >= start && v.Time <= end)
-                                                         .OrderByDescending(o => o.Time).AsNoTracking()
-                                                         .Select(vc => new GetVehiclePosition { Latitude = vc.Latitude, Longitude = vc.Longitude, LocationName = FetchName.ReturnName(key, vc.Latitude, vc.Longitude), Time = vc.Time})
-                                                         .ToListAsync();
 
+                //Call IQueryable on context for a more efficient database query
+                //Call "AsNoTracking" for GET queries since we do not need to track the context
+                IQueryable<GetVehiclePosition> output = _context.Location.Where(v => v.VehicleID == VehicleID && v.Time >= start && v.Time <= end)
+                                                         .OrderBy(o => o.Time).AsNoTracking()
+                                                         .Select(vc => new GetVehiclePosition { Latitude = vc.Latitude, Longitude = vc.Longitude, 
+                                                         LocationName = FetchName.ReturnName(key, vc.Latitude, vc.Longitude), Time = vc.Time });
+
+                locationDetails = await output.ToListAsync();
             }
 
             return locationDetails;
@@ -61,12 +66,12 @@ namespace VehicleTracker.Repository
             //check that a vehicle with the given Id exists before trying to fetch the current position.
             if (_context.Vehicles.Any(x => x.Id == VehicleID))
             {
-                locationDeets = await _context.Location.Where(v => v.VehicleID == VehicleID)
-                                                     .OrderByDescending(o => o.Time).AsNoTracking()
-                                                     .Select(vc => new GetVehiclePosition { Latitude = vc.Latitude, Longitude = vc.Longitude, LocationName = FetchName.ReturnName(key, vc.Latitude, vc.Longitude) })
-                                                     .FirstOrDefaultAsync();
+                //Call "AsNoTracking" for GET queries since we do not need to track the context
+                IQueryable<GetVehiclePosition> position = _context.Location.Where(v => v.VehicleID == VehicleID).OrderBy(o => o.Time).AsNoTracking()
+                                                         .Select(vc => new GetVehiclePosition { Latitude = vc.Latitude, Longitude = vc.Longitude, 
+                                                         LocationName = FetchName.ReturnName(key, vc.Latitude, vc.Longitude), Time = vc.Time });
 
-                return locationDeets;
+                return await position.LastOrDefaultAsync();
                                                      
             }
 
@@ -79,6 +84,12 @@ namespace VehicleTracker.Repository
 
         public async Task<bool> RecordPosition(RegisterPositionViewModel locationModel)
         {
+            /*In recording the position of a vehicle, we can opt to update an in-memory store to hold the latest position
+             * and then write to a database for location history. However, that will amount to two write operations per record. 
+             * Not to mention the memory implication of holding thousands of records. Since I do not think the admin will always need
+             *  to fetch the instantaneous location of a vehicle, I had to forgo the option of an in-memory data store.
+            */
+
             //put the process in a transaction to maintain database integrity.
             using var transaction = _context.Database.BeginTransaction();
             try
@@ -86,9 +97,10 @@ namespace VehicleTracker.Repository
                 //check that the vehicle is registered. Register it if false.
                 if (!_context.Vehicles.Any(v => v.Id == locationModel.VehicleId))
                 {
-                    //var vehicleID = CreateVehicle();
+                    
                     Vehicle newVehicle = new Vehicle
                     {
+                        Id = locationModel.VehicleId,
                         RegistrationDate = DateTime.Now
                     };
 
@@ -98,7 +110,8 @@ namespace VehicleTracker.Repository
 
                 await transaction.CreateSavepointAsync("VehicleCreated");
 
-                var position = new LocationDetail
+              
+                var position = new LocationHistory
                 {
                     Latitude = locationModel.Latitude,
                     Longitude = locationModel.Longitude,
@@ -124,17 +137,6 @@ namespace VehicleTracker.Repository
 
         }
 
-        //public async Task<int> CreateVehicle()
-        //{
-        //    Vehicle newVehicle = new Vehicle
-        //    {
-        //        RegistrationDate = DateTime.Now
-        //    };
-
-        //    _context.Vehicles.Add(newVehicle);
-        //    await _context.SaveChangesAsync();
-
-        //    return newVehicle.Id;
-        //}
+        
     }
 }

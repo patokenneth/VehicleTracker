@@ -7,12 +7,14 @@ using System.Threading.Tasks;
 
 namespace VehicleTracker.Models
 {
-    public class LocationDetail
+    public class LocationHistory
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        //Let the data type of Id be int since a GUID or string will affect the DB size as the records grow
-        public int Id { get; set; }
+        //The Id data type is bigint and not GUID since bigint is big enough to store the number of records we are expecting.
+        //With a range of -9223372036854775808 to 9223372036854775807, it can continuously register locations of vehicles for thousands of years.
+        //Additionally, integer has better indexing and disk efficiency that GUID.
+        public Int64 Id { get; set; }
         public int VehicleID { get; set; }
         //I am assuming that the vehicle positions are sent using the "Geo URI" format; hence, a latitude and longitude
         public string Latitude { get; set; }
