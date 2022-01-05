@@ -22,7 +22,13 @@ To successfully run this project, you need to have the following environments re
 ### Installing
 
 This is a public repo and the project is licesed under GPL, hence, there is no permission needed to get the installation. 
-Simply head over to the url: https://github.com/patokenneth/VehicleTracker
+Simply head over to the url: https://github.com/patokenneth/VehicleTracker. Or request for a zipped folder via my contact details below.
+
+##Extensibility
+As asked, if the user would like to add more properties like the fuel consumption, speed et cetera, all you have to do is include those nullable properties
+in the "LocationHistory" model and run migrations to effect the changes in the db schema. Also, add those properties in the "RegisterPositionViewModel" and modify the "RecordPosition" method to use those 
+new properties in saving a vehicle position.
+
 
 ## Issues
 
